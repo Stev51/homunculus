@@ -4,7 +4,7 @@ from discord import app_commands
 
 class ModuleName(str, enum.Enum):
 	General = "general"
-	Temp = "temporary_placeholder"
+	Temp = "temporary placeholder"
 
 async def setup(bot):
 	await bot.add_cog(General(bot))
@@ -27,7 +27,9 @@ class General(commands.Cog):
 		module_texts = {
 			"general": [
 				["help", "Get a list of commands in a specific module."],
-				["ping", "Test bot latency."]
+				["ping", "Test bot latency."],
+				["cringe", "Sends the cringe copypasta (w/ optional user tag)."],
+				["feedback", "Meant for worldbuilding servers. The bot sends a message with a reaction, letting anyone react to let you know they saw your post."]
 			]
 		}
 		
@@ -56,3 +58,33 @@ class General(commands.Cog):
 	@app_commands.command(name="ping", description="Test bot latency.")
 	async def ping(self, interaction: discord.Interaction):
 		await interaction.response.send_message(f"Pong! {round(self.bot.latency * 1000)}ms", ephemeral=True)
+	
+	@app_commands.command(name="cringe", description="Sends the cringe copypasta (w/ optional user tag).")
+	@app_commands.describe(user="User to ping.")
+	async def cringe(self, interaction: discord.Interaction, user: discord.User|None):
+		
+		text = "You contribute nothing to this server, your humor is obnoxious and a waste of my time, and your superiority complex is obnoxious at best and insulting at best. You are cringe. Goodbye."
+		
+		if user != None:
+			text = f"{user.mention} " + text
+		
+		await interaction.response.send_message(text)
+	
+	@app_commands.command(name="feedback", description="The bot sends a message with a reaction, letting anyone react to let you know they saw your post.")
+	@app_commands.describe(emoji="The emoji which the bot adds as a reaction to its message. Defaults to 👋")
+	async def feedback(self, interaction: discord.Interaction, emoji: str|None):
+		
+		fallback_emoji = "👋"
+		
+		if emoji == None:
+			emoji = fallback_emoji
+		
+		embed = discord.Embed(color=discord.Color.gold(), description="React to this message if you don't wish to give feedback but want to let this person know you've read their post! ^^^")
+		await interaction.response.send_message(embed=embed)
+		
+		selfmsg = await interaction.original_response()
+		
+		try:
+			await selfmsg.add_reaction(emoji)
+		except:
+			await selfmsg.add_reaction(fallback_emoji)
