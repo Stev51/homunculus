@@ -29,7 +29,8 @@ class General(commands.Cog):
 				["help", "Get a list of commands in a specific module."],
 				["ping", "Test bot latency."],
 				["cringe", "Sends the cringe copypasta (w/ optional user tag)."],
-				["feedback", "Meant for worldbuilding servers. The bot sends a message with a reaction, letting anyone react to let you know they saw your post."]
+				["feedback", "Meant for worldbuilding servers. The bot sends a message with a reaction, letting anyone react to let you know they saw your post."],
+				["diceavg", "Calculates the average value of dice rolls. Input as \"NdN+NdN+...\" ex. \"1d10+2d8\" \"8d6\" etc. Can separate multiple calculations with a space."]
 			]
 		}
 		
@@ -88,3 +89,88 @@ class General(commands.Cog):
 			await selfmsg.add_reaction(emoji)
 		except:
 			await selfmsg.add_reaction(fallback_emoji)
+	
+	@app_commands.command(name="diceavg", description="Calculates the average value of dice rolls.")
+	@app_commands.describe(text="Input as \"NdN+NdN+...\" ex. \"1d10+2d8\" \"8d6\" etc. Can separate multiple calculations with a space.")
+	async def cringe(self, interaction: discord.Interaction, text: str):
+		
+		title = ""
+		buf = ""
+		embed = discord.Embed(color=discord.Color.gold())
+		arr0 = text.strip().split(" ")
+		
+		if len(arr0) <= 0:
+			
+			embed.title = "No valid dice values found in input"
+			embed.color = discord.Color.brand_red()
+			
+		else:
+			
+			for x in range(len(arr0)):
+				
+				title = f"Average #{str(x+1)}"
+				buf = f"Input: {arr0[x]}\n"
+			
+				arr1 = arr0[x].split("+")
+				if len(arr1) <= 0:
+					
+					buf += "No valid dice values found in input\n"
+					embed.color = discord.Color.brand_red()
+					
+				else:
+					
+					arr2 = []
+					for i in arr1:
+						
+						if i.isdigit():
+							
+							arr2.append([-1, int(i)])
+						
+						else:
+						
+							temp = i.split("d")
+							
+							if len(temp) == 2:
+								
+								if temp[0].isdigit() and temp[1].isdigit():
+									
+									arr2.append(temp)
+								
+								else:
+									
+									buf += f"Invalid input \"{i}\" ignored\n"
+									embed.color = discord.Color.brand_red()
+								
+							else:
+								
+								buf += f"Invalid input \"{i}\" ignored\n"
+								embed.color = discord.Color.brand_red()
+					
+					if len(arr2) <= 0:
+						
+						buf += "No valid dice values found in input\n"
+						embed.color = discord.Color.brand_red()
+						
+					else:
+						
+						total = 0
+						
+						for i in arr2:
+							
+							count = int(i[0])
+							value = int(i[1])
+							
+							if count >= 0:
+							
+								avg = (value + 1) / 2
+								total += avg * count
+							
+							else:
+								
+								total += float(value)
+							
+						buf += f"Average: **{str(total)}**"
+				
+				embed.add_field(name=title, value=buf, inline=False)
+		
+		await interaction.response.send_message(embed=embed)

@@ -14,8 +14,6 @@ async def setup(bot):
 
 class Admin(commands.GroupCog, name="admin", description="Bot owner-only functions."):
 	
-	_sync = app_commands.Group(name="sync", description="Sync commands.")
-	
 	def __init__(self, bot):
 		self.bot = bot
 	
@@ -30,6 +28,19 @@ class Admin(commands.GroupCog, name="admin", description="Bot owner-only functio
 			return
 		
 		await interaction.response.send_message("Yes, you are an admin!", ephemeral=True)
+	
+	@app_commands.command(name="hardstop", description="Bot owner-only function.")
+	async def admin_stop(self, interaction: discord.Interaction):
+		
+		check = await is_not_admin(interaction)
+		if check:
+			return
+		
+		await interaction.response.send_message("Emergency exit!", ephemeral=True)
+		
+		exit("Hard stop command used!")
+	
+	_sync = app_commands.Group(name="sync", description="Sync commands.")
 	
 	@_sync.command(name="private", description="Bot owner-only function.")
 	async def admin_sync_private(self, interaction: discord.Interaction):
