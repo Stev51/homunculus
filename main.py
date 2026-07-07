@@ -23,7 +23,12 @@ class HomunculusBot(commands.Bot):
 	async def on_ready(self):
 		print(f"> Bot started as {self.user}")
 
-bot = HomunculusBot(command_prefix="/", intents=discord.Intents.all())
+bot = HomunculusBot(
+	command_prefix = "/",
+	intents = discord.Intents.all(),
+	activity = discord.Game(name="Version 2.0"),
+	status = discord.Status.do_not_disturb
+)
 
 print("> Setup finished, calling client run")
 bot.run(SECRETS["token"], log_level=logging.WARN)
